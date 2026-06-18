@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import logo from "@/public/assets/logo.png";
 
 export const navHrefs: Record<string, string> = {
   "Home": "#home",
@@ -39,7 +40,7 @@ const Navbar = () => {
           <Image
             width={100} 
             height={100}
-            src="/assets/logo.png"
+            src={logo}
             alt="NammaRust Official Logo - Rust Programming Community"
             className="h-14 w-auto transition-all duration-300 group-hover:scale-110"
           />

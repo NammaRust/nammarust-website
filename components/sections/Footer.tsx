@@ -1,4 +1,5 @@
 import Image from "next/image";
+import footer_logo from "@/public/assets/logo.png";
 import { navHrefs } from "@/components/sections/Navbar";
 import { socialContent } from "@/constants/content";
 
@@ -36,7 +37,7 @@ const Footer = () => {
               <Image
                 width={200}
                 height={200}
-                src="/assets/logo.png"
+                src={footer_logo}
                 alt="NammaRust Logo Footer"
                 className="h-14 w-auto"
               />

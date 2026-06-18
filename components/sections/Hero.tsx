@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import mascot from "@/public/assets/mascot.png";
 import { heroContent } from "@/constants/content";
 import TypewriterTag from "@/components/ui/TypewriterTag";
 import FloatingParticles from "@/components/ui/FloatingParticles";
@@ -193,7 +194,7 @@ const Hero = () => {
         {/* Mascot (Right side) - Adjusted max widths for laptop screens */}
         <div className="hidden lg:flex flex-1 items-center justify-end">
           <Image
-            src="/assets/mascot.png"
+            src={mascot}
             alt="NammaRust Mascot"
             width={800}
             height={800}

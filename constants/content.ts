@@ -1,3 +1,11 @@
+import SuriyaProfile from "@/public/assets/Suriya_Sureshkumar_Profile.jpeg";
+import KarthigeyanProfile from "@/public/assets/Karthigeyan_Profle.jpeg";
+import IvanProfile from "@/public/assets/Ivan_Nilash_Profile.jpg";
+import VigneshProfile from "@/public/assets/Vignesh_Kumar_Profile.jpeg";
+import RishithaProfile from "@/public/assets/Rishitha_Reddy_Profile.jpeg";
+import VrithikaProfile from "@/public/assets/Vrithika_Sri_Profile.jpeg";
+import SabarivasanProfile from "@/public/assets/Sabarivasan_Profile.jpeg";
+
 // ============ HERO ============
 export const heroContent = {
   tag: "< learn deeply · build boldly · share openly />",
@@ -94,25 +102,25 @@ export const membersContent = {
         {
           name: "Suriya Sureshkumar",
           role: "Founder & Team Head",
-          image: "/assets/Suriya_Sureshkumar_Profile.jpeg",
+          image: SuriyaProfile,
           linkedin: "https://www.linkedin.com/in/suriyasureshkumar/",
         },
         {
           name: "Karthigeyan",
           role: "Co-Founder",
-          image: "/assets/Karthigeyan_Profle.jpeg",
+          image: KarthigeyanProfile,
           linkedin: "https://www.linkedin.com/in/karthigeyan-s-517996394/",
         },
         {
           name: "Ivan Nilash",
           role: "Tech Lead",
-          image: "/assets/Ivan_Nilash_Profile.jpg",
+          image: IvanProfile,
           linkedin: "https://www.linkedin.com/in/ivan-nilash-x-47aa65337/",
         },
         {
           name: "Vignesh Kumar",
           role: "Developer",
-          image: "/assets/Vignesh_Kumar_Profile.jpeg",
+          image: VigneshProfile,
           linkedin: "https://www.linkedin.com/in/vignesh-kumar-28bb57328/",
         },
       ],
@@ -126,19 +134,19 @@ export const membersContent = {
         {
           name: "Rishitha Reddy",
           role: "Team Head",
-          image: "/assets/Rishitha_Reddy_Profile.jpeg",
+          image: RishithaProfile,
           linkedin: "https://www.linkedin.com/in/rishitha-reddy-040920328/",
         },
         {
           name: "Vrithika Sri",
           role: "Member",
-          image: "/assets/Vrithika_Sri_Profile.jpeg",
+          image: VrithikaProfile,
           linkedin: "https://www.linkedin.com/in/vrithika-sri-951930328/",
         },
         {
           name: "Sabarivasan",
           role: "Member",
-          image: "/assets/Sabarivasan_Profile.jpeg",
+          image: SabarivasanProfile,
           linkedin: "https://www.linkedin.com/in/sabarivasan-m-894647328/",
         },
       ],
