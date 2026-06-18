@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = "https://nammarust-community.netlify.app/";
+  const baseUrl = "https://nammarust.netlify.app/";
 
   return {
     rules: {

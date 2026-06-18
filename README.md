@@ -4,7 +4,7 @@ Welcome to the official repository for **NammaRust**, the premier hub for Rust d
 
 ## Official Website
 
-Explore our community hub here: [https://nammarust-community.netlify.app/](https://nammarust-community.netlify.app/)
+Explore our community hub here: [https://nammarust.netlify.app/](https://nammarust.netlify.app/)
 
 ## About the Project
 
