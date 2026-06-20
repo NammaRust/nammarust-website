@@ -54,7 +54,7 @@ const Members = () => {
           "{membersContent.quote}"
         </p>
 
-        <p className="font-inter text-white-primary/60 text-base leading-relaxed max-w-3xl mb-16">
+        <p className="font-inter text-white-primary/60 text-base text-justify leading-relaxed max-w-full mb-16">
           {membersContent.intro}
         </p>
 
@@ -94,7 +94,7 @@ const TeamGroup = ({
       <h3 className="font-poppins font-bold text-2xl md:text-3xl text-white-primary mb-3">
         {team.name}
       </h3>
-      <p className="font-inter text-white-primary/50 text-sm leading-relaxed max-w-2xl mb-10">
+      <p className="font-inter text-white-primary/50 text-sm text-justify leading-relaxed max-w-* mb-10">
         {team.description}
       </p>
 
@@ -102,7 +102,10 @@ const TeamGroup = ({
         {team.members.map((member, index) => {
           const size = sizeOptions[index % sizeOptions.length];
           const floatDuration = 4 + (index % 3) * 0.5;
-          const floatDelay = (index % 4) * 0.5;
+          const entranceDelay = teamIndex * 0.1 + index * 0.1;
+          // Let the entrance spring fully settle (~0.6s) before the float loop
+          // takes over — starting both at once is what made the motion look janky.
+          const floatStartDelay = entranceDelay + 0.6 + (index % 4) * 0.5;
           const position = mtOptions[index % mtOptions.length];
 
           return (
@@ -115,7 +118,7 @@ const TeamGroup = ({
               animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
               transition={{
                 duration: 0.5,
-                delay: teamIndex * 0.1 + index * 0.1,
+                delay: entranceDelay,
                 type: "spring",
                 stiffness: 150,
                 damping: 15,
@@ -125,13 +128,16 @@ const TeamGroup = ({
               <div
                 className={`relative ${size} rounded-full p-[2px]`}
                 style={{
-                  animation: `floatBubble ${floatDuration}s ease-in-out ${floatDelay}s infinite`,
+                  animation: isInView
+                    ? `floatBubble ${floatDuration}s ease-in-out ${floatStartDelay}s infinite`
+                    : undefined,
                   background: "linear-gradient(135deg, #F74C00, rgba(247,76,0,0.2))",
+                  willChange: "transform",
                 }}
               >
                 <div className="w-full h-full rounded-full overflow-hidden relative">
                   <Image
-                    width={100} 
+                    width={100}
                     height={100}
                     src={member.image}
                     alt={`Profile photo of ${member.name}, ${member.role} at NammaRust`}
