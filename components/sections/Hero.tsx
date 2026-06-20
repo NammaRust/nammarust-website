@@ -202,7 +202,7 @@ const Hero = () => {
             width={800}
             height={800}
             priority
-            className="w-full h-auto max-w-[200px] sm:max-w-[260px] md:max-w-[320px] lg:max-w-[400px] xl:max-w-[600px] object-contain"
+            className="w-full h-auto max-w-[280px] sm:max-w-[340px] md:max-w-[380px] lg:max-w-[400px] xl:max-w-[600px] object-contain"
             style={{
               opacity: visible ? 1 : 0,
               transform: visible ? "translateY(0)" : "translateY(30px)",
