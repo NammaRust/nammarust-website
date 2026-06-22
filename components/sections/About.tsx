@@ -156,7 +156,7 @@ const About = () => {
               {aboutContent.headline.split(aboutContent.accentWord)[1]}
             </h2>
 
-            <p className="font-inter text-white-primary/60 text-lg text-justify leading-relaxed mb-6">
+            <p className="font-inter text-white-primary/60 text-lg leading-relaxed mb-6">
               {aboutContent.description}
             </p>
           </div>
@@ -185,7 +185,7 @@ const About = () => {
                 )[1]
               }
             </h3>
-            <p className="font-inter text-white-primary/60 text-lg text-justify leading-relaxed">
+            <p className="font-inter text-white-primary/60 text-lg leading-relaxed">
               {aboutContent.possibilityContent}
             </p>
           </div>
