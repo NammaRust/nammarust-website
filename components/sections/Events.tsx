@@ -12,13 +12,17 @@ const TYPE_CONFIG: Record<EventType, { label: string; color: string; bg: string 
   past:     { label: "Past",     color: "rgba(245,245,245,0.35)", bg: "rgba(245,245,245,0.06)" },
 };
 
+// Fix 1 (shared): parse date locally to avoid timezone-sensitive day shift
+const formatDate = (dateStr: string) => {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString("en-IN", {
+    day: "numeric", month: "long", year: "numeric",
+  });
+};
+
 const CarouselCard = ({ event }: { event: Event }) => {
   const cfg = TYPE_CONFIG[event.type];
   const [hovered, setHovered] = useState(false);
-
-  const dateFormatted = new Date(event.date).toLocaleDateString("en-IN", {
-    day: "numeric", month: "long", year: "numeric",
-  });
 
   return (
     <div
@@ -30,13 +34,11 @@ const CarouselCard = ({ event }: { event: Event }) => {
         boxShadow: hovered ? `0 0 32px ${cfg.color}18` : "none",
       }}
     >
-      {/* Top accent line */}
       <div
         className="absolute top-0 left-0 right-0 h-[2px] rounded-t-xl transition-opacity duration-300"
         style={{ background: cfg.color, opacity: hovered ? 1 : 0.4 }}
       />
 
-      {/* Badge */}
       <span
         className="self-start font-mono text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-full"
         style={{ color: cfg.color, backgroundColor: cfg.bg, fontFamily: "'JetBrains Mono', monospace" }}
@@ -44,15 +46,13 @@ const CarouselCard = ({ event }: { event: Event }) => {
         {cfg.label}
       </span>
 
-      {/* Title */}
       <h3 className="font-poppins font-bold text-lg text-white-primary leading-snug">
         {event.title}
       </h3>
 
-      {/* Meta */}
       <div className="flex flex-col gap-1.5">
         {[
-          { icon: "📅", text: `${dateFormatted} · ${event.time}` },
+          { icon: "📅", text: `${formatDate(event.date)} · ${event.time}` },
           { icon: "📍", text: event.location },
         ].map(({ icon, text }) => (
           <p
@@ -65,12 +65,10 @@ const CarouselCard = ({ event }: { event: Event }) => {
         ))}
       </div>
 
-      {/* Description — clamped to 3 lines */}
       <p className="font-inter text-white-primary/55 text-sm leading-relaxed flex-1 line-clamp-3">
         {event.description}
       </p>
 
-      {/* CTA */}
       <a
         href={event.type === "past" ? "/events" : event.registrationUrl}
         target={event.type === "past" ? "_self" : "_blank"}
@@ -91,17 +89,23 @@ export default function Events() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
-  const [direction, setDirection] = useState(0); // -1 = left, 1 = right
+  const [direction, setDirection] = useState(0);
 
   useEffect(() => {
     fetch("/api/events")
-      .then((r) => r.json())
-      .then((data: Event[]) => {
-        const order: EventType[] = ["ongoing", "upcoming", "past"];
-        const sorted = [...data].sort(
-          (a, b) => order.indexOf(a.type) - order.indexOf(b.type)
-        );
-        setEvents(sorted);
+      .then((r) => {
+        if (!r.ok) throw new Error("Non-2xx response");
+        return r.json();
+      })
+      // Fix 2: validate API response before storing
+      .then((data: unknown) => {
+        if (Array.isArray(data)) {
+          const order: EventType[] = ["ongoing", "upcoming", "past"];
+          const sorted = [...(data as Event[])].sort(
+            (a, b) => order.indexOf(a.type) - order.indexOf(b.type)
+          );
+          setEvents(sorted);
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -109,19 +113,25 @@ export default function Events() {
 
   const total = events.length;
 
+  // Fix 3: guard against division by zero when total is 0
   const prev = useCallback(() => {
+    if (total === 0) return;
     setDirection(-1);
     setIndex((i) => (i - 1 + total) % total);
   }, [total]);
 
   const next = useCallback(() => {
+    if (total === 0) return;
     setDirection(1);
     setIndex((i) => (i + 1) % total);
   }, [total]);
 
-  // 3 visible cards (wrapping)
+  // Fix 4: use composite keys to avoid duplicate key warnings when total < 3
   const visible = total > 0
-    ? [0, 1, 2].map((offset) => events[(index + offset) % total])
+    ? [0, 1, 2].map((offset) => ({
+        event: events[(index + offset) % total],
+        slot: offset, // unique per visible slot
+      }))
     : [];
 
   return (
@@ -166,61 +176,59 @@ export default function Events() {
           </div>
         ) : (
           <>
-            {/* Carousel */}
-            <div
-              className="relative overflow-hidden"
-            >
-              <AnimatePresence mode="wait" initial={false} custom={direction}>
+            <div className="relative overflow-hidden">
+              <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={index}
-                  custom={direction}
                   initial={{ opacity: 0, x: direction * 80 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: direction * -80 }}
                   transition={{ duration: 0.35, ease: "easeInOut" }}
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
                 >
-                  {visible.map((event) => (
-                    <CarouselCard key={event.id} event={event} />
+                  {/* Fix 4: key by slot index to avoid duplicates when total < 3 */}
+                  {visible.map(({ event, slot }) => (
+                    <CarouselCard key={`slot-${slot}`} event={event} />
                   ))}
                 </motion.div>
               </AnimatePresence>
             </div>
 
-            {/* Prev / Next arrows + dots */}
-            <div className="flex items-center justify-between mt-8">
-              <div className="flex items-center gap-3">
-                {[prev, next].map((fn, i) => (
-                  <button
-                    key={i}
-                    onClick={fn}
-                    className="w-10 h-10 rounded-full border border-white-primary/10 flex items-center justify-center font-mono text-white-primary/40 hover:border-orange-primary hover:text-orange-primary transition-all duration-300"
-                  >
-                    {i === 0 ? "←" : "→"}
-                  </button>
-                ))}
-              </div>
+            {/* Hide nav controls when there's nothing to navigate */}
+            {total > 1 && (
+              <div className="flex items-center justify-between mt-8">
+                <div className="flex items-center gap-3">
+                  {[prev, next].map((fn, i) => (
+                    <button
+                      key={i}
+                      onClick={fn}
+                      className="w-10 h-10 rounded-full border border-white-primary/10 flex items-center justify-center font-mono text-white-primary/40 hover:border-orange-primary hover:text-orange-primary transition-all duration-300"
+                    >
+                      {i === 0 ? "←" : "→"}
+                    </button>
+                  ))}
+                </div>
 
-              <div className="flex items-center gap-2">
-                {events.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => {
-                      setDirection(i > index ? 1 : -1);
-                      setIndex(i);
-                    }}
-                    className="rounded-full transition-all duration-300"
-                    style={{
-                      width: i === index ? 20 : 6,
-                      height: 6,
-                      backgroundColor: i === index ? "#F74C00" : "rgba(245,245,245,0.15)",
-                    }}
-                  />
-                ))}
+                <div className="flex items-center gap-2">
+                  {events.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setDirection(i > index ? 1 : -1);
+                        setIndex(i);
+                      }}
+                      className="rounded-full transition-all duration-300"
+                      style={{
+                        width: i === index ? 20 : 6,
+                        height: 6,
+                        backgroundColor: i === index ? "#F74C00" : "rgba(245,245,245,0.15)",
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* View all */}
             <div className="mt-12 flex justify-center">
               <a
                 href="/events"

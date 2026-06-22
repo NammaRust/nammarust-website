@@ -19,13 +19,18 @@ const TABS: { key: EventType; label: string }[] = [
   { key: "past",     label: "Past"     },
 ];
 
+// Fix 1: parse date in UTC to avoid timezone-sensitive day shift
+const formatDate = (dateStr: string) => {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString("en-IN", {
+    day: "numeric", month: "long", year: "numeric",
+  });
+};
+
 const EventCard = ({ event, index }: { event: Event; index: number }) => {
   const cfg = TYPE_CONFIG[event.type];
   const [hovered, setHovered] = useState(false);
-
-  const dateFormatted = new Date(event.date).toLocaleDateString("en-IN", {
-    day: "numeric", month: "long", year: "numeric",
-  });
+  const isPast = event.type === "past";
 
   return (
     <motion.div
@@ -41,13 +46,11 @@ const EventCard = ({ event, index }: { event: Event; index: number }) => {
         boxShadow: hovered ? `0 0 32px ${cfg.color}18` : "none",
       }}
     >
-      {/* Top accent line */}
       <div
         className="absolute top-0 left-0 right-0 h-[2px] rounded-t-xl transition-opacity duration-300"
         style={{ background: cfg.color, opacity: hovered ? 1 : 0.4 }}
       />
 
-      {/* Badge + tags row */}
       <div className="flex items-center gap-2 flex-wrap">
         <span
           className="font-mono text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-full"
@@ -66,15 +69,13 @@ const EventCard = ({ event, index }: { event: Event; index: number }) => {
         ))}
       </div>
 
-      {/* Title */}
       <h3 className="font-poppins font-bold text-xl text-white-primary leading-snug">
         {event.title}
       </h3>
 
-      {/* Meta */}
       <div className="flex flex-col gap-1.5">
         {[
-          { icon: "📅", text: `${dateFormatted} · ${event.time}` },
+          { icon: "📅", text: `${formatDate(event.date)} · ${event.time}` },
           { icon: "📍", text: event.location },
         ].map(({ icon, text }) => (
           <p
@@ -88,25 +89,30 @@ const EventCard = ({ event, index }: { event: Event; index: number }) => {
         ))}
       </div>
 
-      {/* Description */}
       <p className="font-inter text-white-primary/55 text-sm leading-relaxed flex-1">
         {event.description}
       </p>
 
-      {/* CTA */}
-      <a
-        href={event.registrationUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="self-start px-5 py-2.5 rounded-lg font-poppins font-semibold text-sm transition-all duration-300 hover:scale-105"
-        style={{
-          backgroundColor: event.type === "past" ? "rgba(245,245,245,0.06)" : "#F74C00",
-          color: event.type === "past" ? "rgba(245,245,245,0.4)" : "#fff",
-          pointerEvents: event.type === "past" ? "none" : "auto",
-        }}
-      >
-        {event.type === "past" ? "Event Ended" : "Register →"}
-      </a>
+      {/* Fix 2: past events use a span (non-interactive) instead of a disabled anchor */}
+      {isPast ? (
+        <span
+          className="self-start px-5 py-2.5 rounded-lg font-poppins font-semibold text-sm cursor-default select-none"
+          style={{ backgroundColor: "rgba(245,245,245,0.06)", color: "rgba(245,245,245,0.4)" }}
+          aria-disabled="true"
+        >
+          Event Ended
+        </span>
+      ) : (
+        <a
+          href={event.registrationUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="self-start px-5 py-2.5 rounded-lg font-poppins font-semibold text-sm transition-all duration-300 hover:scale-105"
+          style={{ backgroundColor: "#F74C00", color: "#fff" }}
+        >
+          Register →
+        </a>
+      )}
     </motion.div>
   );
 };
@@ -140,9 +146,13 @@ export default function EventsPage() {
 
   useEffect(() => {
     fetch("/api/events")
-      .then((r) => r.json())
-      .then((data: Event[]) => {
-        setEvents(data);
+      .then((r) => {
+        if (!r.ok) throw new Error("Non-2xx response");
+        return r.json();
+      })
+      // Fix 3: validate API response is an array before storing
+      .then((data: unknown) => {
+        if (Array.isArray(data)) setEvents(data as Event[]);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -157,15 +167,12 @@ export default function EventsPage() {
       <main className="flex-1 relative pt-32 pb-24 px-6 overflow-hidden">
         <FloatingParticles />
 
-        {/* Background accent */}
         <div
           className="absolute top-1/3 left-1/4 w-[700px] h-[700px] rounded-full pointer-events-none"
           style={{ background: "radial-gradient(circle, rgba(247,76,0,0.04) 0%, rgba(247,76,0,0.02) 50%, transparent 70%)" }}
         />
 
         <div className="max-w-6xl mx-auto w-full relative z-10">
-
-          {/* Header */}
           <div className="mb-12">
             <p
               className="font-mono text-orange-primary text-sm tracking-widest mb-3"
@@ -183,7 +190,6 @@ export default function EventsPage() {
             </p>
           </div>
 
-          {/* Tab toggles */}
           <div className="flex items-center gap-3 mb-10 flex-wrap">
             {TABS.map(({ key, label }) => {
               const active = activeTab === key;
@@ -209,7 +215,6 @@ export default function EventsPage() {
             })}
           </div>
 
-          {/* Event grid */}
           {loading ? (
             <div className="flex items-center justify-center py-32">
               <p
