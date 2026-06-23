@@ -5,11 +5,12 @@ import Image from "next/image";
 import logo from "@/public/assets/logo.png";
 
 export const navHrefs: Record<string, string> = {
-  "Home": "#home",
-  "About": "#about",
-  "Mission & Vision": "#mission-vision",
-  "Members": "#members",
-  "Social Media": "#social-media",
+  "Home": "/",
+  "Events": "/#events",
+  "About": "/#about",
+  "Mission & Vision": "/#mission-vision",
+  "Members": "/#members",
+  "Social Media": "/#social-media",
 };
 
 const Navbar = () => {
@@ -22,7 +23,7 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navLinks = ["Home", "About", "Mission & Vision", "Members", "Social Media"];
+  const navLinks = ["Home", "Events", "About", "Mission & Vision", "Members", "Social Media"];
 
   return (
     <nav
@@ -38,7 +39,7 @@ const Navbar = () => {
         {/* Logo + Company Name */}
         <div className="flex items-center gap-3 group cursor-pointer">
           <Image
-            width={100} 
+            width={100}
             height={100}
             src={logo}
             alt="NammaRust Official Logo - Rust Programming Community"

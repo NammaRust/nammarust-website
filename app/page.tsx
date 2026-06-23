@@ -7,6 +7,7 @@ import ScrollProgress from "@/components/ui/ScrollProgress";
 import Footer from "@/components/sections/Footer";
 import SocialMedia from "@/components/sections/SocialMedia";
 import Contact from "@/components/sections/Contact";
+import Events from "@/components/sections/Events";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <ScrollProgress />
       <Navbar />
       <Hero />
+      <Events />
       <About />
       <MissionVision />
       <Members />
