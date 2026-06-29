@@ -12,6 +12,7 @@ export interface Event {
   type: EventType;
   registrationUrl: string;
   tags: string[];
+  image: string;
 }
 
 const events: Event[] = [
@@ -26,6 +27,7 @@ const events: Event[] = [
     type: "ongoing",
     registrationUrl: "#",
     tags: ["workshop", "beginner"],
+    image: "https://picsum.photos/seed/rust-fundamentals/800/400",
   },
   {
     id: "evt-002",
@@ -38,6 +40,7 @@ const events: Event[] = [
     type: "upcoming",
     registrationUrl: "#",
     tags: ["workshop", "intermediate", "cli"],
+    image: "https://picsum.photos/seed/rust-cli/800/400",
   },
   {
     id: "evt-003",
@@ -50,6 +53,7 @@ const events: Event[] = [
     type: "upcoming",
     registrationUrl: "#",
     tags: ["talk", "advanced", "async"],
+    image: "https://picsum.photos/seed/rust-async/800/400",
   },
   {
     id: "evt-004",
@@ -62,30 +66,7 @@ const events: Event[] = [
     type: "past",
     registrationUrl: "#",
     tags: ["meetup", "community"],
-  },
-  {
-    id: "evt-005",
-    title: "Rust for Web Developers",
-    description:
-      "An overview of the Rust web ecosystem — Axum, Actix-web, and WASM. Aimed at frontend and fullstack developers curious about bringing Rust into their web projects.",
-    date: "2026-05-10",
-    time: "6:00 PM IST",
-    location: "Online",
-    type: "past",
-    registrationUrl: "#",
-    tags: ["talk", "web", "intermediate"],
-  },
-  {
-    id: "evt-006",
-    title: "Open Mic: Rust in Production",
-    description:
-      "Community members share short talks (10 min each) about using Rust in real projects — what worked, what didn't, and lessons learned the hard way.",
-    date: "2026-05-31",
-    time: "5:30 PM IST",
-    location: "Chennai / Online",
-    type: "past",
-    registrationUrl: "#",
-    tags: ["community", "talks"],
+    image: "https://picsum.photos/seed/rust-kickoff/800/400",
   },
 ];
 

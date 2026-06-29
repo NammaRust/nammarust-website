@@ -2,85 +2,133 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import type { Event, EventType } from "@/app/api/events/route";
 import FloatingParticles from "@/components/ui/FloatingParticles";
 import SectionHeader from "@/components/ui/SectionHeader";
 
 const TYPE_CONFIG: Record<EventType, { label: string; color: string; bg: string }> = {
-  ongoing:  { label: "Ongoing",  color: "#22c55e", bg: "rgba(34,197,94,0.12)"  },
-  upcoming: { label: "Upcoming", color: "#F74C00", bg: "rgba(247,76,0,0.12)"   },
-  past:     { label: "Past",     color: "rgba(245,245,245,0.35)", bg: "rgba(245,245,245,0.06)" },
+  ongoing:  { label: "Ongoing",  color: "#22c55e", bg: "rgba(34,197,94,0.15)"  },
+  upcoming: { label: "Upcoming", color: "#F74C00", bg: "rgba(247,76,0,0.15)"   },
+  past:     { label: "Past",     color: "rgba(245,245,245,0.4)", bg: "rgba(245,245,245,0.08)" },
 };
 
-// Fix 1 (shared): parse date locally to avoid timezone-sensitive day shift
 const formatDate = (dateStr: string) => {
   const [year, month, day] = dateStr.split("-").map(Number);
-  return new Date(year, month - 1, day).toLocaleDateString("en-IN", {
-    day: "numeric", month: "long", year: "numeric",
-  });
+  const d = new Date(year, month - 1, day);
+  return {
+    day: d.toLocaleDateString("en-IN", { day: "numeric" }),
+    month: d.toLocaleDateString("en-IN", { month: "short" }).toUpperCase(),
+    year: d.toLocaleDateString("en-IN", { year: "numeric" }),
+  };
 };
 
 const CarouselCard = ({ event }: { event: Event }) => {
   const cfg = TYPE_CONFIG[event.type];
   const [hovered, setHovered] = useState(false);
+  const { day, month, year } = formatDate(event.date);
 
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="grain-card bg-grey-dark rounded-xl border flex flex-col gap-4 p-6 h-full relative overflow-hidden transition-[border-color,box-shadow] duration-300"
+      className="grain-card bg-grey-dark rounded-2xl border flex flex-col overflow-hidden transition-[border-color,box-shadow,transform] duration-300"
       style={{
-        borderColor: hovered ? `${cfg.color}55` : "rgba(245,245,245,0.06)",
-        boxShadow: hovered ? `0 0 32px ${cfg.color}18` : "none",
+        borderColor: hovered ? `${cfg.color}55` : "rgba(245,245,245,0.07)",
+        boxShadow: hovered ? `0 8px 40px ${cfg.color}22` : "0 2px 12px rgba(0,0,0,0.3)",
+        transform: hovered ? "translateY(-4px)" : "translateY(0)",
       }}
     >
-      <div
-        className="absolute top-0 left-0 right-0 h-[2px] rounded-t-xl transition-opacity duration-300"
-        style={{ background: cfg.color, opacity: hovered ? 1 : 0.4 }}
-      />
-
-      <span
-        className="self-start font-mono text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-full"
-        style={{ color: cfg.color, backgroundColor: cfg.bg, fontFamily: "'JetBrains Mono', monospace" }}
-      >
-        {cfg.label}
-      </span>
-
-      <h3 className="font-poppins font-bold text-lg text-white-primary leading-snug">
-        {event.title}
-      </h3>
-
-      <div className="flex flex-col gap-1.5">
-        {[
-          { icon: "📅", text: `${formatDate(event.date)} · ${event.time}` },
-          { icon: "📍", text: event.location },
-        ].map(({ icon, text }) => (
-          <p
-            key={text}
-            className="font-mono text-xs text-white-primary/40 flex items-center gap-2"
+      {/* Image banner */}
+      <div className="relative w-full h-44 overflow-hidden">
+        <Image
+          src={event.image}
+          alt={event.title}
+          fill
+          className="object-cover transition-transform duration-500"
+          style={{ transform: hovered ? "scale(1.05)" : "scale(1)" }}
+        />
+        {/* Gradient overlay */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 100%)",
+          }}
+        />
+        {/* Type badge on image */}
+        <span
+          className="absolute top-3 left-3 font-mono text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-full backdrop-blur-sm"
+          style={{
+            color: cfg.color,
+            backgroundColor: cfg.bg,
+            fontFamily: "'JetBrains Mono', monospace",
+            border: `1px solid ${cfg.color}44`,
+          }}
+        >
+          {cfg.label}
+        </span>
+        {/* Date block on image */}
+        <div className="absolute bottom-3 right-3 flex flex-col items-center bg-black-primary/70 backdrop-blur-sm rounded-lg px-3 py-2 border border-white-primary/10">
+          <span className="font-poppins font-black text-2xl text-white-primary leading-none">
+            {day}
+          </span>
+          <span
+            className="font-mono text-[10px] tracking-widest text-orange-primary"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
-            <span>{icon}</span><span>{text}</span>
-          </p>
-        ))}
+            {month} {year}
+          </span>
+        </div>
       </div>
 
-      <p className="font-inter text-white-primary/55 text-sm leading-relaxed flex-1 line-clamp-3">
-        {event.description}
-      </p>
+      {/* Card body */}
+      <div className="flex flex-col gap-3 p-5 flex-1">
+        {/* Tags */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {event.tags.map((tag) => (
+            <span
+              key={tag}
+              className="font-mono text-[9px] tracking-wider uppercase px-2 py-0.5 rounded-full text-white-primary/30 bg-white-primary/5"
+              style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
 
-      <a
-        href={event.type === "past" ? "/events" : event.registrationUrl}
-        target={event.type === "past" ? "_self" : "_blank"}
-        rel="noopener noreferrer"
-        className="self-start font-mono text-xs tracking-wider transition-colors duration-300"
-        style={{
-          fontFamily: "'JetBrains Mono', monospace",
-          color: event.type === "past" ? "rgba(245,245,245,0.3)" : "#F74C00",
-        }}
-      >
-        {event.type === "past" ? "> view recap" : "> register now"}
-      </a>
+        {/* Title */}
+        <h3 className="font-poppins font-bold text-base text-white-primary leading-snug">
+          {event.title}
+        </h3>
+
+        {/* Location + time */}
+        <p
+          className="font-mono text-xs text-white-primary/35 flex items-center gap-1.5"
+          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        >
+          <span>📍</span>
+          <span>{event.location} · {event.time}</span>
+        </p>
+
+        {/* Description */}
+        <p className="font-inter text-white-primary/50 text-xs leading-relaxed flex-1 line-clamp-2">
+          {event.description}
+        </p>
+
+        {/* CTA */}
+        <a
+          href={event.type === "past" ? "/events" : event.registrationUrl}
+          target={event.type === "past" ? "_self" : "_blank"}
+          rel="noopener noreferrer"
+          className="self-start font-mono text-xs tracking-wider mt-1 transition-colors duration-300"
+          style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            color: event.type === "past" ? "rgba(245,245,245,0.25)" : "#F74C00",
+          }}
+        >
+          {event.type === "past" ? "> view recap" : "> register now"}
+        </a>
+      </div>
     </div>
   );
 };
@@ -97,7 +145,6 @@ export default function Events() {
         if (!r.ok) throw new Error("Non-2xx response");
         return r.json();
       })
-      // Fix 2: validate API response before storing
       .then((data: unknown) => {
         if (Array.isArray(data)) {
           const order: EventType[] = ["ongoing", "upcoming", "past"];
@@ -113,7 +160,6 @@ export default function Events() {
 
   const total = events.length;
 
-  // Fix 3: guard against division by zero when total is 0
   const prev = useCallback(() => {
     if (total === 0) return;
     setDirection(-1);
@@ -126,11 +172,10 @@ export default function Events() {
     setIndex((i) => (i + 1) % total);
   }, [total]);
 
-  // Fix 4: use composite keys to avoid duplicate key warnings when total < 3
   const visible = total > 0
     ? [0, 1, 2].map((offset) => ({
         event: events[(index + offset) % total],
-        slot: offset, // unique per visible slot
+        slot: offset,
       }))
     : [];
 
@@ -186,7 +231,6 @@ export default function Events() {
                   transition={{ duration: 0.35, ease: "easeInOut" }}
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
                 >
-                  {/* Fix 4: key by slot index to avoid duplicates when total < 3 */}
                   {visible.map(({ event, slot }) => (
                     <CarouselCard key={`slot-${slot}`} event={event} />
                   ))}
@@ -194,7 +238,6 @@ export default function Events() {
               </AnimatePresence>
             </div>
 
-            {/* Hide nav controls when there's nothing to navigate */}
             {total > 1 && (
               <div className="flex items-center justify-between mt-8">
                 <div className="flex items-center gap-3">
@@ -202,7 +245,7 @@ export default function Events() {
                     <button
                       key={i}
                       onClick={fn}
-                      className="w-10 h-10 rounded-full border border-white-primary/10 flex items-center justify-center font-mono text-white-primary/40 hover:border-orange-primary hover:text-orange-primary transition-all duration-300"
+                      className="w-10 h-10 rounded-full border border-white-primary/10 flex items-center justify-center text-white-primary/40 hover:border-orange-primary hover:text-orange-primary transition-all duration-300"
                     >
                       {i === 0 ? "←" : "→"}
                     </button>

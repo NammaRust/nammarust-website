@@ -13,7 +13,7 @@ export const heroContent = {
   headlineLine2: "Becomes Craft.",
   description:
     "NammaRust started with a simple belief: when passionate people gather around a language built for correctness and speed, something extraordinary happens. Not just code — communities, careers, and real-world impact.",
-  primaryCta: { label: "Join Our Community", href: "#social-media" },
+  primaryCta: { label: "Join Our Community", href: "https://discord.gg/3UGxzXk2" },
   secondaryCta: { label: "Read Our Story", href: "#about" },
   quote: "Every great system begins with one idea.",
 };
