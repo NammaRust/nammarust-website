@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { z } from "zod";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResendClient() {
+  if (!process.env.RESEND_API_KEY) {
+    return null;
+  }
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 const contactSchema = z.object({
   name: z
@@ -53,6 +58,14 @@ export async function POST(request: Request) {
   // Check required env vars
   const toEmail = process.env.CONTACT_TO_EMAIL;
   if (!toEmail) {
+    return NextResponse.json(
+      { error: "Server configuration error" },
+      { status: 500 }
+    );
+  }
+
+  const resend = getResendClient();
+  if (!resend) {
     return NextResponse.json(
       { error: "Server configuration error" },
       { status: 500 }
