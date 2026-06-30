@@ -172,12 +172,16 @@ export default function Events() {
     setIndex((i) => (i + 1) % total);
   }, [total]);
 
-  const visible = total > 0
+  // Show up to 3 cards, hide nav when everything fits
+  const cardsToShow = total > 3 ? 3 : total;
+  const largeCarousel = total > 3;
+
+  const visible = largeCarousel
     ? [0, 1, 2].map((offset) => ({
         event: events[(index + offset) % total],
         slot: offset,
       }))
-    : [];
+    : events.map((event, slot) => ({ event, slot }));
 
   return (
     <section
@@ -238,7 +242,7 @@ export default function Events() {
               </AnimatePresence>
             </div>
 
-            {total > 1 && (
+            {total > 3 && (
               <div className="flex items-center justify-between mt-8">
                 <div className="flex items-center gap-3">
                   {[prev, next].map((fn, i) => (

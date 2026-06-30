@@ -41,6 +41,12 @@ const Contact = () => {
 
     setStatus("sending");
 
+    // 1. Open user's email client with pre-filled message
+    const mailtoBody = `Name: ${formData.name}\nEmail: ${formData.email}\nSubject: ${formData.subject}\n\n${formData.message}`;
+    const mailto = `mailto:nammarust@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(mailtoBody)}`;
+    window.open(mailto, "_blank");
+
+    // 2. Send to Discord (best-effort, same as before)
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -48,18 +54,17 @@ const Contact = () => {
         body: JSON.stringify(formData),
       });
 
-      if (res.ok) {
-        setStatus("sent");
-        setFormData({ name: "", email: "", subject: "", message: "" });
-      } else {
+      if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        console.error("Contact form error:", data.error);
-        setStatus("error");
+        console.error("Contact form API error:", data.error);
       }
     } catch (err) {
       console.error("Contact form network error:", err);
-      setStatus("error");
     }
+
+    // Show sent state regardless of Discord success
+    setStatus("sent");
+    setFormData({ name: "", email: "", subject: "", message: "" });
   };
 
   return (

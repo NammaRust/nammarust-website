@@ -17,56 +17,30 @@ export interface Event {
 
 const events: Event[] = [
   {
-    id: "evt-001",
-    title: "Rust Fundamentals Workshop",
+    id: "evt-005",
+    title: "NammaRust Website Challenge 2026",
     description:
-      "A hands-on introductory workshop covering ownership, borrowing, and the basics of safe systems programming in Rust. Perfect for developers coming from C++, Python, or JavaScript.",
-    date: "2026-06-20",
-    time: "6:00 PM IST",
-    location: "Chennai / Online",
-    type: "ongoing",
-    registrationUrl: "#",
-    tags: ["workshop", "beginner"],
-    image: "https://picsum.photos/seed/rust-fundamentals/800/400",
-  },
-  {
-    id: "evt-002",
-    title: "Building CLIs with Rust",
-    description:
-      "Learn to build fast, ergonomic command-line tools using the clap and indicatif crates. We'll build a real CLI from scratch and publish it to crates.io.",
-    date: "2026-07-12",
-    time: "5:30 PM IST",
+      "A community-driven competition inviting students and developers to build the official NammaRust website. Participants designed a modern, responsive site covering Home, About, Members, Mission & Vision, Social Media, and Contact sections. Top submissions were awarded certificates and featured across NammaRust platforms.",
+    date: "2026-06-05",
+    time: "8:00 PM IST - Jun 20, 11:30 PM",
     location: "Online",
-    type: "upcoming",
-    registrationUrl: "#",
-    tags: ["workshop", "intermediate", "cli"],
-    image: "https://picsum.photos/seed/rust-cli/800/400",
-  },
-  {
-    id: "evt-003",
-    title: "Async Rust Deep Dive",
-    description:
-      "A technical session exploring async/await in Rust — how the executor model works, tokio vs async-std, and common pitfalls when writing concurrent Rust code.",
-    date: "2026-07-26",
-    time: "6:00 PM IST",
-    location: "Online",
-    type: "upcoming",
-    registrationUrl: "#",
-    tags: ["talk", "advanced", "async"],
-    image: "https://picsum.photos/seed/rust-async/800/400",
-  },
-  {
-    id: "evt-004",
-    title: "NammaRust Community Kickoff",
-    description:
-      "The founding meetup that started it all. Members introduced themselves, shared their Rust journeys, and laid the groundwork for what NammaRust would become.",
-    date: "2026-04-05",
-    time: "5:00 PM IST",
-    location: "Chennai",
     type: "past",
     registrationUrl: "#",
-    tags: ["meetup", "community"],
-    image: "https://picsum.photos/seed/rust-kickoff/800/400",
+    tags: ["challenge", "design", "open-source"],
+    image: "https://picsum.photos/seed/website-challenge/800/400",
+  },
+  {
+    id: "evt-006",
+    title: "Getting Started With Rust",
+    description:
+      "A beginner-friendly 1-hour workshop introducing Rust to newcomers. Covered what Rust is, where it's used in industry, and a hands-on session building something simple together. Designed to make Rust feel less intimidating and more approachable for developers coming from other languages.",
+    date: "2026-03-29",
+    time: "3:00 PM - 4:00 PM IST",
+    location: "Online",
+    type: "past",
+    registrationUrl: "#",
+    tags: ["workshop", "beginner"],
+    image: "https://picsum.photos/seed/getting-started-rust/800/400",
   },
 ];
 

@@ -1,13 +1,5 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { z } from "zod";
-
-function getResendClient() {
-  if (!process.env.RESEND_API_KEY) {
-    return null;
-  }
-  return new Resend(process.env.RESEND_API_KEY);
-}
 
 const contactSchema = z.object({
   name: z
@@ -55,48 +47,41 @@ export async function POST(request: Request) {
 
   const { name, email, subject, message } = parsed.data;
 
-  // Check required env vars
-  const toEmail = process.env.CONTACT_TO_EMAIL;
-  if (!toEmail) {
-    return NextResponse.json(
-      { error: "Server configuration error" },
-      { status: 500 }
-    );
+  // Discord notification (best-effort — user sends email via their own client)
+  const discordWebhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  if (discordWebhookUrl) {
+    try {
+      const discordRes = await fetch(discordWebhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          embeds: [
+            {
+              title: "New Contact Form Submission",
+              color: 0xf74c00,
+              fields: [
+                { name: "Subject", value: subject, inline: true },
+                { name: "Email", value: email, inline: true },
+                { name: "Name", value: name, inline: true },
+                {
+                  name: "Message",
+                  value:
+                    message.length > 500
+                      ? `${message.slice(0, 500)}...`
+                      : message,
+                },
+              ],
+              footer: { text: `IP: ${ip}` },
+              timestamp: new Date().toISOString(),
+            },
+          ],
+        }),
+);
+      console.log("[DEBUG] Discord webhook response:", discordRes.status);
+    } catch (discordError) {
+      console.error("Discord webhook failed:", discordError);
+    }
   }
 
-  const resend = getResendClient();
-  if (!resend) {
-    return NextResponse.json(
-      { error: "Server configuration error" },
-      { status: 500 }
-    );
-  }
-
-  try {
-    await resend.emails.send({
-      from: "NammaRust <contact@nammarust.netlify.app>",
-      to: toEmail,
-      replyTo: email,
-      subject: `[Contact] ${subject}`,
-      text: `You received a new message from the NammaRust contact form.
-
-Name: ${name}
-Email: ${email}
-Subject: ${subject}
-
-Message:
-${message}
-
----
-IP: ${ip}
-`,
-    });
-
-    return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json(
-      { error: "Failed to send message. Please try again later." },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({ success: true });
 }
