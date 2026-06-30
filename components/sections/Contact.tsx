@@ -41,10 +41,9 @@ const Contact = () => {
 
     setStatus("sending");
 
-    // 1. Open user's email client with pre-filled message
-    const mailtoBody = `Name: ${formData.name}\nEmail: ${formData.email}\nSubject: ${formData.subject}\n\n${formData.message}`;
-    const mailto = `mailto:nammarust@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(mailtoBody)}`;
-    window.open(mailto, "_blank");
+    // 1. Open Gmail compose in browser with pre-filled message
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=nammarust@gmail.com&su=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(formData.message)}`;
+    window.open(gmailUrl, "_blank");
 
     // 2. Send to Discord (best-effort)
     try {
