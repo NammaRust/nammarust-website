@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import type { Event, EventType } from "@/app/api/events/route";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
@@ -40,79 +41,104 @@ const EventCard = ({ event, index }: { event: Event; index: number }) => {
       transition={{ duration: 0.35, delay: index * 0.07 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="grain-card bg-grey-dark rounded-xl border flex flex-col gap-4 p-6 transition-all duration-300 relative overflow-hidden"
+      className="grain-card bg-grey-dark rounded-xl border flex flex-col overflow-hidden transition-all duration-300 relative"
       style={{
         borderColor: hovered ? `${cfg.color}55` : "rgba(245,245,245,0.06)",
         boxShadow: hovered ? `0 0 32px ${cfg.color}18` : "none",
       }}
     >
-      <div
-        className="absolute top-0 left-0 right-0 h-[2px] rounded-t-xl transition-opacity duration-300"
-        style={{ background: cfg.color, opacity: hovered ? 1 : 0.4 }}
-      />
-
-      <div className="flex items-center gap-2 flex-wrap">
+      {/* Image banner */}
+      <div className="relative w-full h-44 overflow-hidden flex-shrink-0">
+        <Image
+          src={event.image}
+          alt={event.title}
+          fill
+          className="object-cover transition-transform duration-500"
+          style={{ transform: hovered ? "scale(1.05)" : "scale(1)" }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 100%)",
+          }}
+        />
+        {/* Type badge */}
         <span
-          className="font-mono text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-full"
-          style={{ color: cfg.color, backgroundColor: cfg.bg, fontFamily: "'JetBrains Mono', monospace" }}
+          className="absolute top-3 left-3 font-mono text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-full backdrop-blur-sm"
+          style={{
+            color: cfg.color,
+            backgroundColor: cfg.bg,
+            fontFamily: "'JetBrains Mono', monospace",
+            border: `1px solid ${cfg.color}44`,
+          }}
         >
           {cfg.label}
         </span>
-        {event.tags.map((tag) => (
+      </div>
+
+      <div className="flex flex-col gap-4 p-6 flex-1 relative">
+        <div
+          className="absolute top-0 left-0 right-0 h-[2px] rounded-t-xl transition-opacity duration-300"
+          style={{ background: cfg.color, opacity: hovered ? 1 : 0.4 }}
+        />
+
+        <div className="flex items-center gap-2 flex-wrap">
+          {event.tags.map((tag) => (
+            <span
+              key={tag}
+              className="font-mono text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-full text-white-primary/30 bg-white-primary/5"
+              style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        <h3 className="font-poppins font-bold text-xl text-white-primary leading-snug">
+          {event.title}
+        </h3>
+
+        <div className="flex flex-col gap-1.5">
+          {[
+            { icon: "📅", text: `${formatDate(event.date)} · ${event.time}` },
+            { icon: "📍", text: event.location },
+          ].map(({ icon, text }) => (
+            <p
+              key={text}
+              className="font-mono text-xs text-white-primary/40 flex items-center gap-2"
+              style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              <span>{icon}</span>
+              <span>{text}</span>
+            </p>
+          ))}
+        </div>
+
+        <p className="font-inter text-white-primary/55 text-sm leading-relaxed flex-1">
+          {event.description}
+        </p>
+
+        {isPast ? (
           <span
-            key={tag}
-            className="font-mono text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-full text-white-primary/30 bg-white-primary/5"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            className="self-start px-5 py-2.5 rounded-lg font-poppins font-semibold text-sm cursor-default select-none"
+            style={{ backgroundColor: "rgba(245,245,245,0.06)", color: "rgba(245,245,245,0.4)" }}
+            aria-disabled="true"
           >
-            {tag}
+            Event Ended
           </span>
-        ))}
-      </div>
-
-      <h3 className="font-poppins font-bold text-xl text-white-primary leading-snug">
-        {event.title}
-      </h3>
-
-      <div className="flex flex-col gap-1.5">
-        {[
-          { icon: "📅", text: `${formatDate(event.date)} · ${event.time}` },
-          { icon: "📍", text: event.location },
-        ].map(({ icon, text }) => (
-          <p
-            key={text}
-            className="font-mono text-xs text-white-primary/40 flex items-center gap-2"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        ) : (
+          <a
+            href={event.registrationUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="self-start px-5 py-2.5 rounded-lg font-poppins font-semibold text-sm transition-all duration-300 hover:scale-105"
+            style={{ backgroundColor: "#F74C00", color: "#fff" }}
           >
-            <span>{icon}</span>
-            <span>{text}</span>
-          </p>
-        ))}
+            Register →
+          </a>
+        )}
       </div>
-
-      <p className="font-inter text-white-primary/55 text-sm leading-relaxed flex-1">
-        {event.description}
-      </p>
-
-      {/* Fix 2: past events use a span (non-interactive) instead of a disabled anchor */}
-      {isPast ? (
-        <span
-          className="self-start px-5 py-2.5 rounded-lg font-poppins font-semibold text-sm cursor-default select-none"
-          style={{ backgroundColor: "rgba(245,245,245,0.06)", color: "rgba(245,245,245,0.4)" }}
-          aria-disabled="true"
-        >
-          Event Ended
-        </span>
-      ) : (
-        <a
-          href={event.registrationUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="self-start px-5 py-2.5 rounded-lg font-poppins font-semibold text-sm transition-all duration-300 hover:scale-105"
-          style={{ backgroundColor: "#F74C00", color: "#fff" }}
-        >
-          Register →
-        </a>
-      )}
     </motion.div>
   );
 };

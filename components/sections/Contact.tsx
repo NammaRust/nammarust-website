@@ -6,7 +6,7 @@ import { contactContent } from "@/constants/content";
 import SectionHeader from "@/components/ui/SectionHeader";
 import FloatingParticles from "@/components/ui/FloatingParticles";
 
-type Status = "idle" | "sending" | "sent";
+type Status = "idle" | "sending" | "sent" | "error";
 
 const Contact = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -25,7 +25,7 @@ const Contact = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (
@@ -41,9 +41,37 @@ const Contact = () => {
 
     setStatus("sending");
 
-    setTimeout(() => {
-      setStatus("sent");
-    }, 1500);
+    // 1. Open email — mobile opens Gmail app, desktop opens Gmail web
+    const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (isMobile) {
+      const mailto = `mailto:nammarust@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(formData.message)}`;
+      window.location.href = mailto;
+    } else {
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=nammarust@gmail.com&su=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(formData.message)}`;
+      window.open(gmailUrl, "_blank");
+    }
+
+    // 2. Send to Discord (best-effort)
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        console.error("Contact form API error:", data.error);
+        setStatus("error");
+        return;
+      }
+    } catch (err) {
+      console.error("Contact form network error:", err);
+      setStatus("error");
+      return;
+    }
+
+    setStatus("sent");
   };
 
   return (
@@ -147,6 +175,7 @@ const Contact = () => {
                 <TerminalField
                   label="email"
                   type="email"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={(v) => handleChange("email", v)}
                   // required
@@ -166,28 +195,37 @@ const Contact = () => {
 
                 <button
                   type="submit"
-                  disabled={status !== "idle"}
+                  disabled={status === "sending" || status === "sent"}
                   className="glow-orange px-8 py-3 bg-orange-primary text-white-primary font-poppins font-semibold text-base rounded-lg transition-all duration-300 hover:scale-105 hover:bg-orange-primary/90 disabled:opacity-70 disabled:hover:scale-100 self-start"
                 >
                   {status === "idle" && "Send Message"}
                   {status === "sending" && "Sending..."}
                   {status === "sent" && "Sent ✓"}
+                  {status === "error" && "Failed — Try Again"}
                 </button>
 
                 {/* Terminal output */}
-                {status !== "idle" && (
+                {(status === "sending" || status === "sent" || status === "error") && (
                   <div
                     className="font-mono text-xs leading-relaxed"
                     style={{ fontFamily: "'JetBrains Mono', monospace" }}
                   >
-                    <TerminalLine
-                      text="> sending message..."
-                      color="rgba(245,245,245,0.5)"
-                    />
+                    {status === "sending" && (
+                      <TerminalLine
+                        text="> sending message..."
+                        color="rgba(245,245,245,0.5)"
+                      />
+                    )}
                     {status === "sent" && (
                       <TerminalLine
                         text="> message sent successfully"
-                        color="#F74C00"
+                        color="#22c55e"
+                      />
+                    )}
+                    {status === "error" && (
+                      <TerminalLine
+                        text="> error: failed to send message"
+                        color="#ef4444"
                       />
                     )}
                   </div>
@@ -231,12 +269,14 @@ const TerminalField = ({
   onChange,
   type = "text",
   required = false,
+  autoComplete,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
   required?: boolean;
+  autoComplete?: string;
 }) => {
   const [focused, setFocused] = useState(false);
   const active = focused || value.length > 0;
@@ -256,6 +296,7 @@ const TerminalField = ({
         type={type}
         value={value}
         required={required}
+        autoComplete={autoComplete}
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
