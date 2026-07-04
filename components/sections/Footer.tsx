@@ -4,7 +4,12 @@ import { navHrefs } from "@/components/sections/Navbar";
 import { socialContent } from "@/constants/content";
 
 const Footer = () => {
-  const quickLinks = ["Home", "About", "Mission & Vision", "Members"];
+  const quickLinks = [
+    { label: "Home", href: "/" },
+    { label: "About", href: "/#about" },
+    { label: "Mission & Vision", href: "/#mission-vision" },
+    { label: "Members", href: "/#members" },
+  ];
 
   return (
     <footer className="relative bg-grey-dark border-t border-orange-primary/10 overflow-hidden">
@@ -57,11 +62,20 @@ const Footer = () => {
             </h3>
             {quickLinks.map((link) => (
               <a
-                key={link}
-                href={navHrefs[link]}
-                className="font-inter text-white-primary/50 text-sm hover:text-orange-primary transition-colors duration-300 w-fit"
+                key={link.label}
+                href={link.href}
+                className="group font-inter text-white-primary/70 text-sm hover:text-white-primary transition-colors duration-300 w-fit inline-flex items-center gap-1.5"
               >
-                {link}
+                {link.label}
+                <svg
+                  className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2.5}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
               </a>
             ))}
           </div>
@@ -71,9 +85,9 @@ const Footer = () => {
             <h3 className="font-poppins font-bold text-white-primary text-base mb-1">
               Connect
             </h3>
-            {socialContent.platforms.map((platform, i) => (
+            {socialContent.platforms.map((platform) => (
               <a
-                key={i}
+                key={platform.name}
                 href={platform.url}
                 target="_blank"
                 rel="noopener noreferrer"

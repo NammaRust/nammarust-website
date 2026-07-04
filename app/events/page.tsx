@@ -53,6 +53,7 @@ const EventCard = ({ event, index }: { event: Event; index: number }) => {
           src={event.image}
           alt={event.title}
           fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover transition-transform duration-500"
           style={{ transform: hovered ? "scale(1.05)" : "scale(1)" }}
         />
