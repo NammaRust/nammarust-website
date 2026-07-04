@@ -27,8 +27,8 @@ const FloatingParticles = () => {
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       particles.push({
-        x: Math.random() * (canvas?.width ?? 1),
-        y: Math.random() * (canvas?.height ?? 1),
+        x: Math.random() * (canvas.width || 1),
+        y: Math.random() * (canvas.height || 1),
         size: Math.random() * 2 + 0.5,
         speedX: (Math.random() - 0.5) * 0.3,
         speedY: (Math.random() - 0.5) * 0.3,

@@ -171,7 +171,7 @@ const Contact = () => {
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="p-8 flex flex-col gap-6">
+              <form onSubmit={handleSubmit} noValidate className="p-8 flex flex-col gap-6">
                 <TerminalField
                   label="name"
                   value={formData.name}
