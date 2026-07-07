@@ -27,7 +27,7 @@ const events: Event[] = [
     type: "past",
     registrationUrl: "#",
     tags: ["challenge", "design", "open-source"],
-    image: "https://picsum.photos/seed/website-challenge/800/400",
+    image: "/assets/events/event2.png",
   },
   {
     id: "evt-006",
@@ -40,7 +40,7 @@ const events: Event[] = [
     type: "past",
     registrationUrl: "#",
     tags: ["workshop", "beginner"],
-    image: "https://picsum.photos/seed/getting-started-rust/800/400",
+    image: "/assets/events/event1.png",
   },
 ];
 

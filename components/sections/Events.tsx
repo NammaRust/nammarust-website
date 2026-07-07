@@ -45,6 +45,7 @@ const CarouselCard = ({ event }: { event: Event }) => {
           src={event.image}
           alt={event.title}
           fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover transition-transform duration-500"
           style={{ transform: hovered ? "scale(1.05)" : "scale(1)" }}
         />
@@ -248,6 +249,7 @@ export default function Events() {
                     <button
                       key={i}
                       onClick={fn}
+                      aria-label={i === 0 ? "Previous events" : "Next events"}
                       className="w-10 h-10 rounded-full border border-white-primary/10 flex items-center justify-center text-white-primary/40 hover:border-orange-primary hover:text-orange-primary transition-all duration-300"
                     >
                       {i === 0 ? "←" : "→"}

@@ -94,7 +94,7 @@ const TeamGroup = ({
       <h3 className="font-poppins font-bold text-2xl md:text-3xl text-white-primary mb-3">
         {team.name}
       </h3>
-      <p className="font-inter text-white-primary/50 text-sm text-justify leading-relaxed max-w-* mb-10">
+      <p className="font-inter text-white-primary/50 text-sm text-justify leading-relaxed max-w-full mb-10">
         {team.description}
       </p>
 

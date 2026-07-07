@@ -72,6 +72,12 @@ const Contact = () => {
     }
 
     setStatus("sent");
+    setFormData({ name: "", email: "", subject: "", message: "" });
+
+    // Reset status after 3 seconds so the user can send another message
+    setTimeout(() => {
+      setStatus("idle");
+    }, 3000);
   };
 
   return (
@@ -165,12 +171,12 @@ const Contact = () => {
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="p-8 flex flex-col gap-6">
+              <form onSubmit={handleSubmit} noValidate className="p-8 flex flex-col gap-6">
                 <TerminalField
                   label="name"
                   value={formData.name}
                   onChange={(v) => handleChange("name", v)}
-                  // required
+                  required
                 />
                 <TerminalField
                   label="email"
@@ -178,19 +184,19 @@ const Contact = () => {
                   autoComplete="email"
                   value={formData.email}
                   onChange={(v) => handleChange("email", v)}
-                  // required
+                  required
                 />
                 <TerminalField
                   label="subject"
                   value={formData.subject}
                   onChange={(v) => handleChange("subject", v)}
-                  // required
+                  required
                 />
                 <TerminalTextarea
                   label="message"
                   value={formData.message}
                   onChange={(v) => handleChange("message", v)}
-                  // required
+                  required
                 />
 
                 <button
